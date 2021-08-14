@@ -3,6 +3,8 @@ package database
 import (
 	"github.com/jeanmolossi/codeflix-microservice-videos-encoder/domain"
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	_ "github.com/lib/pq"
 	"log"
 )
 
@@ -57,6 +59,7 @@ func (db *Database) Connect() (*gorm.DB, error) {
 
 	if db.AutoMigrateDb {
 		db.Db.AutoMigrate(&domain.Video{}, &domain.Job{})
+		db.Db.Model(domain.Job{}).AddForeignKey("video_id", "videos (id)", "CASCADE", "CASCADE")
 	}
 
 	return db.Db, nil
