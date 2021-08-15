@@ -3,6 +3,9 @@ version: "3"
 services:
   micro-codeflix-video-encoder:
     container_name: micro-codeflix-video-encoder
+    entrypoint: ./.docker/entrypoint.sh
     build: .
     volumes:
       - .:/go/src
+    env_file:
+      - .env
