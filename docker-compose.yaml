@@ -9,3 +9,15 @@ services:
       - .:/go/src
     env_file:
       - .env
+
+  micro-codeflix-rabbit:
+    container_name: micro-codeflix-rabbit
+    image: "rabbitmq:3.8-management"
+    environment:
+      - RABBITMQ_ERLANG_COOKIE=fYOaGmG67Py+011XTAM3iw==
+      - RABBITMQ_DEFAULT_USER=rabbitmq
+      - RABBITMQ_DEFAULT_PASS=rabbitmq
+      - RABBITMQ_DEFAULT_VHOST=/
+    ports:
+      - "15672:15672"
+      - "5672:5672"
