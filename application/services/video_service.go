@@ -25,24 +25,6 @@ func NewVideoService() VideoService {
 	return VideoService{}
 }
 
-func getCredentials() (aws.Credentials, error) {
-	if os.Getenv("AWS_ACCESS_KEY") == "" {
-		return aws.Credentials{}, fmt.Errorf("aws_access_key is empty: %s", os.Getenv("AWS_ACCESS_KEY"))
-	}
-
-	if os.Getenv("AWS_SECRET_KEY") == "" {
-		return aws.Credentials{}, fmt.Errorf("aws_secret_key is empty: %s", os.Getenv("AWS_SECRET_KEY"))
-	}
-
-	awsCredentials := aws.Credentials{
-		AccessKeyID:     os.Getenv("AWS_ACCESS_KEY"),
-		SecretAccessKey: os.Getenv("AWS_SECRET_KEY"),
-		Source:          "Env file, Hard coded",
-	}
-
-	return awsCredentials, nil
-}
-
 func (v *VideoService) Download(bucketName string) error {
 	sourceBucket := bucketName
 	objectName := aws.String("ForBiggerFun.mp4")
@@ -51,30 +33,10 @@ func (v *VideoService) Download(bucketName string) error {
 		return fmt.Errorf("you must supply the bucket to copy %v", sourceBucket)
 	}
 
-	awsCredentials, err := getCredentials()
-	if err != nil {
-		log.Fatalf("Error on load awsCrededntials: %v", err)
-		return err
-	}
-
-	ctx := context.Background()
-
-	awsConfig, err := config.LoadDefaultConfig(ctx)
+	client, ctx, err := getClient()
 	if err != nil {
 		return err
 	}
-
-	awsConfig.Region = "us-east-1"
-	awsConfig.Credentials = credentials.StaticCredentialsProvider{
-		Value: awsCredentials,
-	}
-
-	if err != nil {
-		fmt.Printf("configuration error, %v", err.Error())
-		return err
-	}
-
-	client := s3.NewFromConfig(awsConfig)
 
 	objectInput := &s3.GetObjectInput{
 		Bucket: aws.String(url.PathEscape(sourceBucket)),
@@ -176,6 +138,53 @@ func (v *VideoService) getFile() string {
 
 func (v *VideoService) getFragFile() string {
 	return v.getFolder() + ".frag"
+}
+
+func getCredentials() (aws.Credentials, error) {
+	if os.Getenv("AWS_ACCESS_KEY") == "" {
+		return aws.Credentials{}, fmt.Errorf("aws_access_key is empty: %s", os.Getenv("AWS_ACCESS_KEY"))
+	}
+
+	if os.Getenv("AWS_SECRET_KEY") == "" {
+		return aws.Credentials{}, fmt.Errorf("aws_secret_key is empty: %s", os.Getenv("AWS_SECRET_KEY"))
+	}
+
+	awsCredentials := aws.Credentials{
+		AccessKeyID:     os.Getenv("AWS_ACCESS_KEY"),
+		SecretAccessKey: os.Getenv("AWS_SECRET_KEY"),
+		Source:          "Env file, Hard coded",
+	}
+
+	return awsCredentials, nil
+}
+
+func getClient() (*s3.Client, context.Context, error) {
+	awsCredentials, err := getCredentials()
+	if err != nil {
+		log.Fatalf("Error on load awsCrededntials: %v", err)
+		return nil, nil, err
+	}
+
+	ctx := context.Background()
+
+	awsConfig, err := config.LoadDefaultConfig(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	awsConfig.Region = "us-east-1"
+	awsConfig.Credentials = credentials.StaticCredentialsProvider{
+		Value: awsCredentials,
+	}
+
+	if err != nil {
+		fmt.Printf("configuration error, %v", err.Error())
+		return nil, nil, err
+	}
+
+	client := s3.NewFromConfig(awsConfig)
+
+	return client, ctx, nil
 }
 
 func printOutput(out []byte) {
