@@ -140,6 +140,12 @@ func (v *VideoService) getFragFile() string {
 	return v.getFolder() + ".frag"
 }
 
+func (v *VideoService) InsertVideo() error {
+	_, err := v.VideoRepository.Insert(v.Video)
+
+	return err
+}
+
 func getCredentials() (aws.Credentials, error) {
 	if os.Getenv("AWS_ACCESS_KEY") == "" {
 		return aws.Credentials{}, fmt.Errorf("aws_access_key is empty: %s", os.Getenv("AWS_ACCESS_KEY"))
