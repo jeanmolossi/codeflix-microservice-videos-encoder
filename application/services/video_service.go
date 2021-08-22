@@ -27,7 +27,7 @@ func NewVideoService() VideoService {
 
 func (v *VideoService) Download(bucketName string) error {
 	sourceBucket := bucketName
-	objectName := aws.String("ForBiggerFun.mp4")
+	objectName := aws.String(v.Video.FilePath)
 
 	if sourceBucket == "" || *objectName == "" {
 		return fmt.Errorf("you must supply the bucket to copy %v", sourceBucket)
@@ -44,6 +44,9 @@ func (v *VideoService) Download(bucketName string) error {
 	}
 
 	objOutput, err := client.GetObject(ctx, objectInput)
+	if err != nil {
+		return err
+	}
 
 	file, err := ioutil.ReadAll(objOutput.Body)
 
