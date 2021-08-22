@@ -56,3 +56,29 @@ curl -X POST 'http://localhost:15672/api/exchanges/%2F/amq.default/publish' \
 }'
 
 ```
+
+## Informações uteis:
+
+### Dados default
+
+### Postgres
+
+- database: encoder
+- user: postgres
+- password: root
+- host: micro-codeflix-postgres
+
+### RabbitMQ
+
+- user: rabbitmq
+- password: rabbitmq
+- host: micro-codeflix-rabbit
+- ports:
+    - 5672:5672
+    - 15672:15672
+- consumer name: micro-codeflix-videos-encoder
+- consumer queue name: videos
+- notification exchange: amq.direct
+- notification routing key: jobs
+- dead letter queue: dlx
+    - type: fanout
