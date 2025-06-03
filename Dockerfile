@@ -34,7 +34,7 @@ RUN cd /tmp \
 # Cleanup.
 RUN rm -rf /var/cache/apk/* /tmp/*
 
-FROM golang:1.16-alpine
+FROM golang:1.24-alpine
 
 ENV PATH="$PATH:/bin/bash" \
     BENTO4_BIN="/opt/bento4/bin" \
